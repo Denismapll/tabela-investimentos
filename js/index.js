@@ -2,6 +2,7 @@ const alta = document.querySelectorAll(".emalta");
 const baixa = document.querySelectorAll(".embaixa");
 const botoes = document.querySelectorAll(".buttons");
 const setores = document.querySelectorAll(".setores");
+const dolar = document.querySelector('.dolar');
 
 const fetchAlta = (sector) => {
   const result = fetch(
@@ -9,7 +10,7 @@ const fetchAlta = (sector) => {
   )
     .then((res) => res.json())
     .then((data) => {
-        console.log(data)
+        // console.log(data)
       return data.stocks;
     });
   return result;
@@ -27,6 +28,35 @@ const fetchBaixa = (sector) => {
   return result;
 };
 
+const fetchDolar = () => {
+  const result = fetch(
+    `https://economia.awesomeapi.com.br/json/last/USD-BRL`
+  ).then((res)=> res.json())
+  .then((data)=>{
+    // console.log(data.USDBRL)
+    return data.USDBRL
+  })
+  return result;
+}
+
+// fetchDolar();
+
+dolarValue();
+
+async function dolarValue(){
+  res = await fetchDolar();
+  // console.log(res.ask)
+  dolar.value = res.bid
+  dolar.textContent = parseFloat(res.bid).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
+
+const attDolar = setInterval(()=>{
+  
+  dolarValue();
+},10000)
 // fetchAlta('finance');
 
 async function changeTable(sector) {
@@ -107,7 +137,7 @@ function checkVar(valor){
     }
 }
 
-changeTable("Retail");
+changeTable("Electronic Technology");
 
 setores.forEach((x) => {
   x.addEventListener("click", (x) => {
