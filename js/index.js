@@ -2,7 +2,9 @@ const alta = document.querySelectorAll(".emalta");
 const baixa = document.querySelectorAll(".embaixa");
 const botoes = document.querySelectorAll(".buttons");
 const setores = document.querySelectorAll(".setores");
-const dolar = document.querySelector('.dolar');
+const dolar = document.querySelector(".dolar");
+const valueBlock = document.querySelectorAll(".value-block");
+const percent = document.querySelectorAll(".percent");
 
 const fetchAlta = (sector) => {
   const result = fetch(
@@ -10,7 +12,7 @@ const fetchAlta = (sector) => {
   )
     .then((res) => res.json())
     .then((data) => {
-        // console.log(data)
+      // console.log(data)
       return data.stocks;
     });
   return result;
@@ -28,35 +30,72 @@ const fetchBaixa = (sector) => {
   return result;
 };
 
-const fetchDolar = () => {
+const fetchDEB = () => {
   const result = fetch(
-    `https://economia.awesomeapi.com.br/json/last/USD-BRL`
-  ).then((res)=> res.json())
-  .then((data)=>{
-    // console.log(data.USDBRL)
-    return data.USDBRL
-  })
+    `https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,CNY-BRL,BTC-BRL,ETH-BRL`
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      // console.log(data.USDBRL)
+      return data;
+    });
   return result;
+};
+
+// ROTATIVO
+
+async function attRotativo() {
+  res = await fetchDEB();
+
+  percent.forEach((x) => {
+    x.textContent = parseFloat(res[x.classList[1]].pctChange) + "%";
+
+    if (parseFloat(res[x.classList[1]].pctChange) < 0) {
+      x.classList.add("red");
+    } else {
+      x.classList.add("green");
+    }
+  });
+
+  valueBlock.forEach((x) => {
+    console.log(x.classList[1]);
+
+    x.textContent = parseFloat(res[x.classList[1]].ask).toLocaleString(
+      "pt-BR",
+      {
+        style: "currency",
+        currency: "BRL",
+      }
+    );
+  });
+
+  completarRotativo();
 }
 
-// fetchDolar();
+function completarRotativo() {
+  const conteudo = document.querySelector(".interno-rotativo.d-flex.flex-row");
+  const rotativos = Array.from(conteudo.children);
 
-dolarValue();
+  rotativos.forEach((item) => {
+    const duplicados = item.cloneNode(true);
+    duplicados.setAttribute("aria-hidden", true);
+    conteudo.appendChild(duplicados);
+  });
+}
 
-async function dolarValue(){
-  res = await fetchDolar();
-  // console.log(res.ask)
-  dolar.value = res.bid
-  dolar.textContent = parseFloat(res.bid).toLocaleString("pt-BR", {
+async function dolarValue() {
+  res = await fetchDEB();
+  console.log(res);
+  dolar.value = res.USDBRL.bid;
+  dolar.textContent = parseFloat(res.USDBRL.bid).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
   });
 }
 
-const attDolar = setInterval(()=>{
-  
+const attDolar = setInterval(() => {
   dolarValue();
-},10000)
+}, 10000);
 // fetchAlta('finance');
 
 async function changeTable(sector) {
@@ -65,11 +104,11 @@ async function changeTable(sector) {
 
   const filterAr = [];
 
-    // console.log(resultA)
+  // console.log(resultA)
 
   resultA.forEach((el) => {
     if (el.stock.length == 5) {
-    //   filterAr.push(el);
+      //   filterAr.push(el);
     }
   });
 
@@ -86,17 +125,16 @@ async function changeTable(sector) {
       });
       x.children[4].textContent =
         parseFloat(resultA[y].change).toFixed(2) + "%";
-      x.children[4].value =
-        parseFloat(resultA[y].change);
-        checkVar(x.children[4])
+      x.children[4].value = parseFloat(resultA[y].change);
+      checkVar(x.children[4]);
       x.children[5].textContent = resultA[y].sector;
     } catch (error) {
-        x.children[0].children[0].src = ""
-        x.children[1].textContent = ""
-        x.children[2].textContent = ""
-        x.children[3].textContent = ""
-        x.children[4].textContent = ""
-        x.children[5].textContent = ""
+      x.children[0].children[0].src = "";
+      x.children[1].textContent = "";
+      x.children[2].textContent = "";
+      x.children[3].textContent = "";
+      x.children[4].textContent = "";
+      x.children[5].textContent = "";
     }
   });
 
@@ -111,33 +149,30 @@ async function changeTable(sector) {
       });
       x.children[4].textContent =
         parseFloat(resultB[y].change).toFixed(2) + "%";
-        x.children[4].value =
-        parseFloat(resultB[y].change);
-        checkVar(x.children[4])
+      x.children[4].value = parseFloat(resultB[y].change);
+      checkVar(x.children[4]);
       x.children[5].textContent = resultB[y].sector;
     } catch (error) {
-        x.children[0].children[0].src = ""
-        x.children[1].textContent = ""
-        x.children[2].textContent = ""
-        x.children[3].textContent = ""
-        x.children[4].textContent = ""
-        x.children[5].textContent = ""
+      x.children[0].children[0].src = "";
+      x.children[1].textContent = "";
+      x.children[2].textContent = "";
+      x.children[3].textContent = "";
+      x.children[4].textContent = "";
+      x.children[5].textContent = "";
     }
   });
 }
 
-function checkVar(valor){
-    if (valor.value > 0) {
-        valor.parentElement.classList.add('table-success')
-        valor.parentElement.classList.remove('table-danger')
-    }
-    if (valor.value < 0) {
-        valor.parentElement.classList.add('table-danger')
-        valor.parentElement.classList.remove('table-success')
-    }
+function checkVar(valor) {
+  if (valor.value > 0) {
+    valor.parentElement.classList.add("table-success");
+    valor.parentElement.classList.remove("table-danger");
+  }
+  if (valor.value < 0) {
+    valor.parentElement.classList.add("table-danger");
+    valor.parentElement.classList.remove("table-success");
+  }
 }
-
-changeTable("Electronic Technology");
 
 setores.forEach((x) => {
   x.addEventListener("click", (x) => {
@@ -146,3 +181,9 @@ setores.forEach((x) => {
 });
 
 // console.log(baixa)
+
+changeTable("Electronic Technology");
+
+attRotativo();
+
+dolarValue();
